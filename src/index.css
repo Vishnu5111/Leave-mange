@@ -1,0 +1,15 @@
+/* =========================
+   GLOBAL STYLE ENTRY POINT
+   ========================= */
+
+/* 1️⃣ Design tokens (colors, spacing, radius, etc.) */
+@import "./styles/variables.css";
+
+/* 2️⃣ Base reset & body styles */
+@import "./styles/base.css";
+
+/* 3️⃣ Layout helpers (centering, containers, grids) */
+@import "./styles/layout.css";
+
+/* 4️⃣ Reusable UI components (buttons, inputs, cards) */
+@import "./styles/components.css";

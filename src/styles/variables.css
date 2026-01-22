@@ -1,0 +1,23 @@
+:root {
+  /* Brand */
+  --primary: #764ba2;
+  --primary-hover: #663d91;
+  --secondary: #28417b;
+
+  /* Backgrounds */
+  --bg-page: #f3f4f6;
+  --bg-card: #ffffff;
+
+  /* Text */
+  --text-main: #111827;
+  --text-muted: #6b7280;
+
+  /* Borders */
+  --border-default: #e5e7eb;
+  --border-error: #ef4444;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}

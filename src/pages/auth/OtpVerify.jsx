@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import "./OtpVerify.css";
 
@@ -7,7 +7,6 @@ const OTP_LENGTH = 6;
 const RESEND_TIME = 30;
 
 const OtpVerify = () => {
-  const { empId } = useParams();
   const navigate = useNavigate();
   const { handleLoginSuccess } = useAuth();
 
@@ -27,6 +26,7 @@ const OtpVerify = () => {
   }, []);
 
   const startTimer = () => {
+    clearInterval(timerRef.current);
     setTimeLeft(RESEND_TIME);
     setCanResend(false);
 
@@ -64,16 +64,12 @@ const OtpVerify = () => {
     const pasted = e.clipboardData.getData("text").slice(0, OTP_LENGTH);
     if (!/^\d+$/.test(pasted)) return;
 
-    const pastedOtp = pasted.split("");
-    setOtp(pastedOtp);
+    const digits = pasted.split("");
+    const nextOtp = Array(OTP_LENGTH).fill("");
+    digits.forEach((d, i) => (nextOtp[i] = d));
+    setOtp(nextOtp);
 
-    pastedOtp.forEach((digit, i) => {
-      if (inputRefs.current[i]) {
-        inputRefs.current[i].value = digit;
-      }
-    });
-
-    inputRefs.current[OTP_LENGTH - 1]?.focus();
+    inputRefs.current[Math.min(digits.length - 1, OTP_LENGTH - 1)]?.focus();
   };
 
   const handleVerifyOtp = async () => {
@@ -87,23 +83,48 @@ const OtpVerify = () => {
       setError("");
 
       const enteredOtp = otp.join("");
+      const otpToken = sessionStorage.getItem("otpToken");
 
-      // 🧪 MOCK RESPONSE
-      const data = {
-        success: true,
-        token: "jwt_token_here",
-        role: "FACULTY",
-        firstLogin: false,
-      };
+      if (!otpToken) {
+        throw new Error("OTP session expired. Please login again.");
+      }
 
-      if (!data.success) throw new Error("Invalid OTP");
+      const response = await fetch(
+        `http://localhost:9090/verify-otp?enteredOtp=${enteredOtp}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${otpToken}`,
+          },
+        }
+      );
 
-      handleLoginSuccess(data.token, {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid OTP");
+      }
+
+      // ✅ FINAL AUTH (token already exists)
+      handleLoginSuccess(otpToken, {
         role: data.role,
-        firstLogin: data.firstLogin,
+        employeeId: data.employeeId,
       });
 
-      navigate("/dashboard");
+      sessionStorage.removeItem("otpToken");
+
+      // ✅ ROLE-BASED REDIRECT
+      if (data.role === "SUPERADMIN") {
+        navigate("/superadmin/dashboard");
+      } else if (data.role === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else if (data.role === "FACULTY") {
+        navigate("/faculty/dashboard");
+      } else {
+        navigate("/unauthorized");
+      }
+
     } catch (err) {
       setError(err.message || "OTP verification failed");
     } finally {
@@ -116,7 +137,7 @@ const OtpVerify = () => {
       <div className="card otp-card">
         <div className="otp-header">
           <h2>OTP Verification</h2>
-          <p>Enter the 6-digit OTP sent to your registered mobile</p>
+          <p>Enter the 6-digit OTP sent to your registered email</p>
         </div>
 
         <div className="otp-input-group" onPaste={handlePaste}>
@@ -131,6 +152,7 @@ const OtpVerify = () => {
               value={digit}
               onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
+              onFocus={(e) => e.target.select()}
             />
           ))}
         </div>

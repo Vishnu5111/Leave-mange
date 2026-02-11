@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 const Login = () => {
-  const { empId } = useParams();
   const navigate = useNavigate();
 
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -16,21 +15,20 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    if (!phoneNumber || !password) {
-      setError("Phone number and password are required");
+    if (!mobileNumber || !password) {
+      setError("Mobile number and password are required");
       return;
     }
 
     try {
       setIsLoading(true);
 
-      // 🔐 BACKEND LOGIN API 
-      const response = await fetch("LOGIN_API_URL", {
+      // 🔐 BACKEND LOGIN API (OTP TRIGGER)
+      const response = await fetch("http://localhost:9090/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          empId,
-          phoneNumber,
+          mobileNumber,
           password,
         }),
       });
@@ -41,8 +39,13 @@ const Login = () => {
         throw new Error(data.message || "Login failed");
       }
 
-      // ✅ Go to OTP page
-      navigate(`/otp/${empId}`);
+      // ✅ Store TEMP OTP session data (NOT AUTH TOKEN)
+      sessionStorage.setItem("otpToken", data.token);
+      sessionStorage.setItem("employeeId", data.employeeId);
+
+      // ✅ Go to OTP verification page
+      navigate("/otp");
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -56,9 +59,7 @@ const Login = () => {
         {/* HEADER */}
         <div className="login-header">
           <h2>Login</h2>
-          <p>
-            Employee ID: <strong>{empId}</strong>
-          </p>
+          <p>Please enter your credentials</p>
         </div>
 
         {/* ERROR */}
@@ -67,13 +68,14 @@ const Login = () => {
         {/* FORM */}
         <form onSubmit={handleSubmit}>
           <div className="login-form-group">
-            <label>Phone Number</label>
+            <label>Mobile Number</label>
             <input
               type="tel"
               className="input"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              value={mobileNumber}
+              onChange={(e) => setMobileNumber(e.target.value)}
               disabled={isLoading}
+              placeholder="Enter mobile number"
             />
           </div>
 
@@ -86,6 +88,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
+                placeholder="Enter password"
               />
               <button
                 type="button"

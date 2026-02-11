@@ -4,14 +4,26 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  // user = { role, employeeId }
 
-  // Called by Login.jsx ONLY
-  const handleLoginSuccess = (jwtToken) => {
+  /**
+   * 🔐 FINAL AUTH ENTRY POINT
+   * Called ONLY after successful OTP verification
+   */
+  const handleLoginSuccess = (jwtToken, userData) => {
     setToken(jwtToken);
+    setUser(userData);
   };
 
+  /**
+   * 🔓 LOGOUT
+   * Clears auth state and session
+   */
   const logout = () => {
     setToken(null);
+    setUser(null);
+    sessionStorage.clear();
   };
 
   const isAuthenticated = !!token;
@@ -20,6 +32,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         token,
+        user,
         isAuthenticated,
         handleLoginSuccess,
         logout,
@@ -30,7 +43,9 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook (clean & professional)
+/**
+ * ✅ Custom Hook
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

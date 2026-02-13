@@ -15,6 +15,9 @@ const AdminDashboard = () => {
       {/* STATS */}
       <div className="dashboard-stats">
         <div className="stat-card">
+           <p>
+          Welcome, <strong>{user.superAdminId}</strong>
+        </p>
           <h4>Total Faculty</h4>
           <span>24</span>
         </div>

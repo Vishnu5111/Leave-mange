@@ -7,6 +7,9 @@ import SetPassword from "./pages/auth/SetPassword";
 import SuperAdminDashboard from "./pages/superadmin/SuperAdminDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import FacultyDashboard from "./pages/faculty/FacultyDashboard";
+import ApplyLeave from "./pages/faculty/ApplyLeave";
+import MyLeaves from "./pages/faculty/MyLeaves";
+
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -45,16 +48,19 @@ function App() {
       </Route>
 
       {/* FACULTY */}
-      <Route
-        path="/faculty"
-        element={
-          <ProtectedRoute allowedRoles={["FACULTY"]}>
-            <DashboardLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="dashboard" element={<FacultyDashboard />} />
-      </Route>
+     <Route
+  path="/faculty"
+  element={
+    <ProtectedRoute allowedRoles={["FACULTY"]}>
+      <DashboardLayout />
+    </ProtectedRoute>
+  }
+>
+  <Route path="dashboard" element={<FacultyDashboard />} />
+  <Route path="apply-leave" element={<ApplyLeave />} />
+  <Route path="my-leaves" element={<MyLeaves />} />
+</Route>
+
 
       <Route path="/unauthorized" element={<Unauthorized />} />
     </Routes>

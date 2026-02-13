@@ -1,0 +1,140 @@
+/* Page Background */
+.apply-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+  background-color: #F7F7FF;
+  min-height: 100vh;
+}
+
+/* Card */
+.apply-card {
+  width: 100%;
+  max-width: 720px;
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* Title */
+.apply-card h2 {
+  margin-bottom: 5px;
+  color: #28417B;
+  font-weight: 600;
+}
+
+.apply-subtitle {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+/* Form Layout */
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels */
+label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+  transition: 0.2s ease;
+  background-color: #f9fafb;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #28417B;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(40, 65, 123, 0.1);
+}
+
+textarea {
+  min-height: 120px;
+  resize: none;
+}
+
+/* Two column date row */
+.date-row {
+  display: flex;
+  gap: 15px;
+}
+
+.date-row .form-group {
+  flex: 1;
+}
+
+/* Character counter */
+.char-count {
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Error */
+.error {
+  color: #E7210B;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Buttons Row */
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+/* Cancel */
+.btn-secondary {
+  padding: 10px 18px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+/* Primary Submit */
+.btn-primary {
+  padding: 10px 22px;
+  background: #28417B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}

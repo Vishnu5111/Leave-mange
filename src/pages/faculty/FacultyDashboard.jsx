@@ -1,8 +1,8 @@
-import { useAuth } from "../../auth/AuthContext";
+
 import "./FacultyDashboard.css";
 
 const FacultyDashboard = () => {
-  const { user } = useAuth();
+  
 
   return (
     <div className="faculty-dashboard">
@@ -10,7 +10,7 @@ const FacultyDashboard = () => {
       <div className="dashboard-header">
         <h2>Faculty Dashboard</h2>
         <p>
-          Welcome, <strong>{user?.employeeId}</strong>
+         
         </p>
       </div>
 

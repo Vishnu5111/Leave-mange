@@ -3,37 +3,39 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  const [user, setUser] = useState(null);
-  // user = { role, employeeId }
 
-  /**
-   * 🔐 FINAL AUTH ENTRY POINT
-   * Called ONLY after successful OTP verification
-   */
+  // ✅ Initialize directly from sessionStorage
+  const [token, setToken] = useState(() => {
+    return sessionStorage.getItem("authToken");
+  });
+
+  const [user, setUser] = useState(() => {
+    const storedUser = sessionStorage.getItem("authUser");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   const handleLoginSuccess = (jwtToken, userData) => {
     setToken(jwtToken);
     setUser(userData);
+
+    sessionStorage.setItem("authToken", jwtToken);
+    sessionStorage.setItem("authUser", JSON.stringify(userData));
   };
 
-  /**
-   * 🔓 LOGOUT
-   * Clears auth state and session
-   */
   const logout = () => {
     setToken(null);
     setUser(null);
-    sessionStorage.clear();
-  };
 
-  const isAuthenticated = !!token;
+    sessionStorage.removeItem("authToken");
+    sessionStorage.removeItem("authUser");
+  };
 
   return (
     <AuthContext.Provider
       value={{
         token,
         user,
-        isAuthenticated,
+        isAuthenticated: !!token,
         handleLoginSuccess,
         logout,
       }}
@@ -43,13 +45,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-/**
- * ✅ Custom Hook
- */
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
     throw new Error("useAuth must be used inside AuthProvider");
   }
-  return context;
+  return ctx;
 };

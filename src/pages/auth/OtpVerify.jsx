@@ -72,65 +72,82 @@ const OtpVerify = () => {
     inputRefs.current[Math.min(digits.length - 1, OTP_LENGTH - 1)]?.focus();
   };
 
-  const handleVerifyOtp = async () => {
-    if (otp.some((d) => d === "")) {
-      setError("Please enter complete OTP");
-      return;
+const handleVerifyOtp = async () => {
+  if (otp.some((d) => d === "")) {
+    setError("Please enter complete OTP");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError("");
+
+    const enteredOtp = otp.join("");
+    const otpToken = sessionStorage.getItem("otpToken");
+
+    if (!otpToken) {
+      throw new Error("OTP session expired. Please login again.");
     }
 
-    try {
-      setLoading(true);
-      setError("");
-
-      const enteredOtp = otp.join("");
-      const otpToken = sessionStorage.getItem("otpToken");
-
-      if (!otpToken) {
-        throw new Error("OTP session expired. Please login again.");
+    const response = await fetch(
+      `http://localhost:9090/verify-otp?enteredOtp=${enteredOtp}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${otpToken}`,
+        },
       }
+    );
 
-      const response = await fetch(
-        `http://localhost:9090/verify-otp?enteredOtp=${enteredOtp}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${otpToken}`,
-          },
-        }
-      );
+    const data = await response.json();
 
-      const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || "Invalid OTP");
+    }
 
-      if (!response.ok) {
-        throw new Error(data.message || "Invalid OTP");
-      }
+    // 🔐 Build dynamic user object
+    const userData = {
+      role: data.role,
+      employeeId: data.employeeId,
+    };
 
-      // ✅ FINAL AUTH (token already exists)
-      handleLoginSuccess(otpToken, {
-        role: data.role,
-        employeeId: data.employeeId,
-      });
+    // Add hierarchy fields only when needed
+    if (data.role === "FACULTY" && data.adminId) {
+      userData.adminId = data.adminId;
+    }
 
-      sessionStorage.removeItem("otpToken");
+    if (data.role === "ADMIN" && data.superAdminId) {
+      userData.superAdminId = data.superAdminId;
+    }
 
-      // ✅ ROLE-BASED REDIRECT
-      if (data.role === "SUPERADMIN") {
+    // ✅ Store in AuthContext
+    handleLoginSuccess(otpToken, userData);
+
+    // Clear temp token
+    sessionStorage.removeItem("otpToken");
+
+    // 🔁 Role-based redirect (clean switch)
+    switch (data.role) {
+      case "SUPERADMIN":
         navigate("/superadmin/dashboard");
-      } else if (data.role === "ADMIN") {
+        break;
+      case "ADMIN":
         navigate("/admin/dashboard");
-      } else if (data.role === "FACULTY") {
+        break;
+      case "FACULTY":
         navigate("/faculty/dashboard");
-      } else {
+        break;
+      default:
         navigate("/unauthorized");
-      }
-
-    } catch (err) {
-      setError(err.message || "OTP verification failed");
-    } finally {
-      setLoading(false);
     }
-  };
+
+  } catch (err) {
+    setError(err.message || "OTP verification failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="page-center otp-container">
